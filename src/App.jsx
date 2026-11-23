@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HashRouter, Routes, Route, Link, NavLink, Outlet, useParams, useLocation } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -82,6 +82,32 @@ function Section() {
   );
 }
 
+function Pre({ node, children, ...props }) {
+  const ref = useRef(null);
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(ref.current.textContent.replace(/\n$/, ""));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard blocked; do nothing */
+    }
+  };
+
+  return (
+    <div className="code-block">
+      <button type="button" className="copy-btn" onClick={copy}>
+        {copied ? "Copied!" : "Copy"}
+      </button>
+      <pre ref={ref} {...props}>{children}</pre>
+    </div>
+  );
+}
+
+const mdComponents = { pre: Pre };
+
 function Post() {
   const { section, slug } = useParams();
   const info = site.sections.find((s) => s.id === section);
@@ -98,9 +124,13 @@ function Post() {
         </div>
       </div>
       <div className="prose">
-        <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm, remarkMath]}
+          rehypePlugins={[rehypeKatex]}
+          components={mdComponents}
+        >
           {post.body}
-        </ReactMarkdown>
+      </ReactMarkdown>
       </div>
     </article>
   );
