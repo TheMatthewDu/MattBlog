@@ -70,9 +70,12 @@ drain(){
 mkdir /dev/shm/out
 ```
 
-To run, add this to your main executable
+To run, add this to your main executable,
+# IMPORTANT: DO NOT FORGET TO MOVE EVERYTHING FROM `/dev/shm/out` TO YOUR RESULTS FOLDER AT THE END!!!! THE `drain` FUNCTION DOES NOT DO IT MANUALLY. THE FOLDER IS WIPED AFTER A PROGRAM TERMINATES, SO ANYTHING IN THERE THAT IS NOT SAVED WILL BE DELETED. YOU HAVE BEEN WARNED...
 ```bash
 drain $results_folder & <executable here>
+
+mv /dev/shm/out/* $results_folder # **IMPORTANT**
 ```
 
 The code works as follows:
